@@ -1,94 +1,91 @@
 # Artificial Intelligence — Laboratory Record
 
-**Anirud Paul** · 26MCF10001 · Fall Semester 2026-27
-School of Computing Science Engineering and Artificial Intelligence (SCAI), VIT Bhopal University
+Ten AI laboratory experiments, implemented in Python and collected into a single executed
+Jupyter notebook with full theory, results and discussion for each.
 
-Ten experiments covering classical search, evolutionary computation, inductive logic
-programming, expert systems and modern machine learning.
+**Anirud Paul** · 26MCF10001 · School of Computing Science Engineering and Artificial
+Intelligence, VIT Bhopal University · Fall Semester 2026-27
 
-📄 **[Read the full notebook online →](https://anirudpaul.github.io/ai-lab-assignments/notebook.html)**
-🖼️ **[Browse the figures →](https://anirudpaul.github.io/ai-lab-assignments/)**
+📊 **[View the results online →](https://anirudpaul.github.io/ai-lab-assignments/)**
 
 ---
 
 ## The experiments
 
-| # | Experiment | Technique | Dataset | Headline result |
-|---|---|---|---|---|
-| 1 | Graph traversal | DFS & BFS, from scratch | Hand-built graph | BFS finds J in 2 edges, DFS in 5; BFS peak memory 93–216× DFS on b-ary trees |
-| 2 | 8-puzzle solver | A\*, four heuristics | Generated states | All heuristics agree on the 12-move optimum; work differs **97×** |
-| 3 | Travelling salesman | Genetic algorithm | 25 Indian cities | 9,026 km — beats nearest-neighbour by 30 %, 2-opt by 1.8 % (5/6 seeds) |
-| 4 | Family-tree rule induction | FOIL, from scratch | Hand-built family tree | 3 relations learned at precision/recall **1.0**; `uncle` needed beam search + pruning |
-| 5 | Expert system | Forward chaining + certainty factors | 20-rule knowledge base | 4 cases diagnosed with full explanation traces |
-| 6 | Digit recognition | Multilayer perceptron | MNIST | **98.18 %** test accuracy; linear control scores 91.28 % |
-| 7 | Face recognition | PCA eigenfaces + SVM | LFW | **84.78 %** accuracy, 81.48 % balanced (baseline 41.15 %) |
-| 8 | Digit clustering | K-Means, from scratch | MNIST | 58.7 % purity, ARI 0.365 — without labels |
-| 9 | Image classification | Convolutional neural network | CIFAR-10 | **86.98 %** test accuracy |
-| 10 | Sentiment analysis | 2-layer bidirectional LSTM | IMDB reviews | see notebook |
+| # | Experiment | Approach | Headline result |
+|---|---|---|---|
+| 1 | DFS and BFS graph traversal | Adjacency-list graph, both traversals from scratch | BFS found the 2-edge path to the goal; DFS took 5. BFS peak memory 93–216× DFS on balanced trees |
+| 2 | 8-puzzle solver | A\* with 4 heuristics | All heuristics returned the same 12-move optimum; nodes expanded fell 1,453 → 15 (97×) |
+| 3 | Travelling salesman | Genetic algorithm (OX crossover, inversion mutation) | 9,026 km vs 12,940 km greedy and 9,192 km for 2-opt; beat 2-opt in 5 of 6 seeds |
+| 4 | FOIL rule induction | Sequential covering on information gain | `grandfather`, `grandmother`, `sibling` learned at precision & recall 1.0 |
+| 5 | Expert system | Forward chaining + certainty factors | 20 rules, 3 inference layers, full how/why explanation |
+| 6 | MNIST digit classifier | Multilayer perceptron (PyTorch) | **98.18 %** test accuracy; identical net without activations gets 91.28 % |
+| 7 | LFW face recognition | PCA eigenfaces + RBF SVM | **84.78 %** accuracy / 81.48 % balanced, vs 41.15 % majority baseline |
+| 8 | MNIST clustering | K-Means from scratch (k-means++) | Purity 0.587, ARI 0.365 — but two digits went unclaimed and two were split |
+| 9 | CIFAR-10 classification | Convolutional neural network | **86.87 %**, vs 54.69 % for an MLP given 4.7× more parameters |
+| 10 | IMDB sentiment analysis | 2-layer bidirectional LSTM | Compared head-to-head against a TF-IDF bigram baseline |
 
-Experiments 1–5 and the K-Means of experiment 8 are implemented **from first principles** —
-no library call does the actual work. Experiments 6, 9 and 10 use PyTorch; 7 uses
-scikit-learn.
+Every experiment is written up with **Aim → Theory → Implementation → Results →
+Discussion**, and every claim in a discussion section is supported by output printed in
+the notebook. Where a result contradicted the expected textbook outcome — augmentation
+not improving CIFAR-10 accuracy, greedy FOIL failing on `uncle`, the elbow method failing
+to identify k=10 — it is reported as it happened rather than smoothed over.
 
-## What this record tries to do differently
+## Repository layout
 
-Every experiment states its theory, runs it, and then discusses what actually happened —
-including the parts that did not work. A few examples:
+```
+├── AI_Lab_Assignment.ipynb    the submitted notebook (executed, with all outputs)
+├── AI_Lab_Assignment.pdf      the same record as a PDF
+├── src/                       cell-marked sources, one file per experiment
+│   ├── 00_title.py            title page, index, shared setup
+│   ├── 01_dfs_bfs.py
+│   │   ...
+│   └── 10_rnn_imdb_sentiment.py
+├── tools/
+│   ├── fetch_data.py          downloads and normalises all four datasets
+│   ├── nbbuild.py             src/*.py -> notebook -> execute -> HTML + PDF
+│   ├── build_site.py          generates the GitHub Pages site
+│   └── smoke.py               fast runtime check for a single experiment
+├── assets/
+│   ├── vit_logo.png
+│   └── fig/                   every figure, as PNG
+└── docs/                      GitHub Pages site
+```
 
-- **Experiment 4** reports FOIL *failing* on `uncle` (precision 0.20), diagnoses the exact
-  greedy decision that caused it, and then fixes it with beam search plus post-pruning.
-- **Experiment 7** initially selected the corner of its hyperparameter grid. That is a
-  warning sign, not a result, so the grid was widened — worth 4.4 points of accuracy.
-- **Experiment 8** shows that neither the elbow method nor the silhouette score identifies
-  k = 10 on MNIST, contrary to how those methods are usually taught.
-- **Experiment 9** compares the CNN against an MLP given *more* parameters, so the
-  comparison cannot be won by capacity alone.
-- **Experiments 3 and 10** benchmark against strong classical baselines (2-opt, TF-IDF +
-  logistic regression) rather than only against random guessing.
+The notebook is **generated**, not hand-edited. Each experiment lives in `src/NN_name.py`
+using `# %%` / `# %% [markdown]` cell markers; `tools/nbbuild.py` assembles them into one
+notebook, executes it, and exports HTML and PDF. This keeps a 10-experiment record
+editable one experiment at a time instead of as a single multi-megabyte JSON blob.
 
-## Reproducing it
+## Reproducing
 
 ```bash
 pip install -r requirements.txt
-python tools/fetch_data.py      # downloads MNIST, CIFAR-10, IMDB, LFW (~700 MB)
-python build.py                 # assemble -> execute -> PDF + HTML
-python tools/build_site.py      # regenerate the GitHub Pages site
+python tools/fetch_data.py        # ~500 MB: MNIST, CIFAR-10, IMDB, LFW
+python tools/nbbuild.py all       # assemble, execute, export
 ```
 
-A CUDA GPU is used automatically when available and is not required — the PyTorch
-experiments fall back to CPU, more slowly.
+Datasets are fetched once into `data/` (git-ignored) and cached as `.npz`, so the notebook
+itself makes no network calls and re-runs identically.
 
-> **Note on dataset mirrors.** `tools/fetch_data.py` pulls MNIST, CIFAR-10 and IMDB from
-> the HuggingFace CDN rather than their original academic hosts. The data is identical;
-> the original hosts measured at 0.01–0.04 MB/s from this machine, which would have made
-> CIFAR-10 alone a ~4.7 hour download against roughly 3 minutes from the mirror.
+To check a single experiment quickly while editing it:
 
-## Layout
-
-```
-src/                  one cell-marked .py per experiment — the actual source
-├── 00_title.py       title page, index, shared setup and helpers
-├── 01_dfs_bfs.py … 10_rnn_imdb_sentiment.py
-tools/
-├── nbbuild.py        assembles src/*.py into one notebook, executes, exports
-├── fetch_data.py     downloads and normalises every dataset
-├── build_site.py     generates the GitHub Pages site
-└── smoke.py          fast per-experiment check while developing
-build.py              the one command that builds everything
-AI_Lab_Assignment.ipynb   the executed notebook  ← submission
-AI_Lab_Assignment.pdf     the same thing as a PDF  ← submission
-docs/                 GitHub Pages site
-assets/fig/           every generated figure as a PNG
+```bash
+python tools/smoke.py 04_foil_family_tree.py
 ```
 
-The notebook is **generated**, not hand-edited. Each experiment lives in its own `.py`
-file with `# %%` cell markers, and `build.py` assembles them into a single notebook,
-executes it, and exports the PDF. This keeps one experiment editable without touching a
-multi-megabyte JSON blob.
+### Environment
 
-## Reproducibility
+Produced on Python 3.11.0, Windows 11, with an NVIDIA RTX 4060 (CUDA 12.1). Everything
+runs on CPU as well — experiments 6, 9 and 10 are simply slower. `SEED = 42` is fixed
+throughout and cuDNN is put in deterministic mode, so repeated runs reproduce the numbers
+quoted in the discussion sections.
 
-A fixed seed (42) is set for Python, NumPy and PyTorch, and cuDNN is put in deterministic
-mode, so the figures quoted in the discussion sections match the numbers the notebook
-prints. Datasets are downloaded and normalised once, up front, so the notebook itself
-makes no network calls.
+> **Note on datasets.** The canonical hosts for CIFAR-10 and MNIST measured at
+> 0.01–0.04 MB/s from the machine this was built on, which would have made CIFAR-10 alone
+> a ~4.7 hour download. `tools/fetch_data.py` pulls byte-identical data from the
+> HuggingFace CDN at ~1 MB/s instead. LFW still comes through scikit-learn's own fetcher.
+
+## Licence
+
+Coursework, shared for reference. The datasets belong to their respective publishers.

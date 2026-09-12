@@ -216,10 +216,21 @@ def eval_rnn(model, dl):
     return loss_sum / n, correct / n, np.concatenate(preds), np.concatenate(probs)
 
 
-def train_rnn(model, dl_tr, dl_va, epochs=5, lr=1e-3, label="rnn", quiet=False):
+def train_rnn(model, dl_tr, dl_va, epochs=8, lr=1e-3, label="rnn", quiet=False):
+    """Train, keeping the parameters from the epoch with the best validation accuracy.
+
+    RNNs on this dataset start overfitting within a few epochs -- validation loss turns
+    upwards while training accuracy keeps climbing. Reporting the *final* epoch would
+    therefore report a model that is already past its best. Restoring the best checkpoint
+    is both standard practice and a fairer measurement, and it uses the validation split
+    (never the test set) to make the choice.
+    """
+    import copy
+
     model = model.to(DEVICE)
     opt = torch.optim.Adam(model.parameters(), lr=lr)
     hist = []
+    best_acc, best_state, best_epoch = -1.0, None, 0
     for ep in range(1, epochs + 1):
         model.train()
         loss_sum, correct, seen = 0.0, 0, 0
@@ -238,9 +249,17 @@ def train_rnn(model, dl_tr, dl_va, epochs=5, lr=1e-3, label="rnn", quiet=False):
         vl, va, _, _ = eval_rnn(model, dl_va)
         hist.append({"epoch": ep, "train_loss": loss_sum / seen,
                      "train_acc": correct / seen, "val_loss": vl, "val_acc": va})
+        if va > best_acc:
+            best_acc, best_epoch = va, ep
+            best_state = copy.deepcopy(model.state_dict())
         if not quiet:
             print(f"  [{label}] epoch {ep}  train_acc={correct/seen:.4f}  "
-                  f"val_acc={va:.4f}  val_loss={vl:.4f}")
+                  f"val_acc={va:.4f}  val_loss={vl:.4f}"
+                  + ("   <- best so far" if ep == best_epoch else ""))
+    if best_state is not None:
+        model.load_state_dict(best_state)
+        if not quiet:
+            print(f"  [{label}] restored epoch {best_epoch} (val_acc={best_acc:.4f})")
     return model, pd.DataFrame(hist)
 
 
@@ -252,7 +271,7 @@ print(f"\ntrainable parameters: {rnn_params:,}")
 print(f"  of which embedding : {VOCAB_SIZE*128:,} "
       f"({100*VOCAB_SIZE*128/rnn_params:.0f}%)")
 
-EPOCHS_R = 5
+EPOCHS_R = 8
 banner(f"TRAINING 2-LAYER BIDIRECTIONAL LSTM ({EPOCHS_R} epochs on {DEVICE})")
 (rnn_model, rnn_hist), rnn_time = timed(train_rnn, rnn_model, dl_tr, dl_va,
                                         EPOCHS_R, label="BiLSTM-2")
@@ -378,9 +397,12 @@ RNN_VARIANTS = {
 
 var_rows, var_hist = [], {}
 for name, kwargs in RNN_VARIANTS.items():
-    torch.manual_seed(SEED)
-    m, h = train_rnn(SentimentRNN(**kwargs), dl_tr, dl_va, EPOCHS_R,
-                     label=name, quiet=True)
+    if name == "LSTM, 2 layers, bi":
+        m, h = rnn_model, rnn_hist          # already trained above -- do not retrain
+    else:
+        torch.manual_seed(SEED)
+        m, h = train_rnn(SentimentRNN(**kwargs), dl_tr, dl_va, EPOCHS_R,
+                         label=name, quiet=True)
     _, a, p, pr = eval_rnn(m, dl_te)
     var_rows.append({"architecture": name,
                      "parameters": sum(q.numel() for q in m.parameters()),

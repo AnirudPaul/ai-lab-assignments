@@ -1,4 +1,4 @@
-# Datasets are downloaded by tools/fetch_data.py -- never committed (~700 MB)
+# Datasets are downloaded by tools/fetch_data.py -- never committed (~500 MB)
 data/
 
 # Python
@@ -8,7 +8,6 @@ __pycache__/
 .venv/
 venv/
 
-# OS
-Thumbs.db
-.DS_Store
-desktop.ini
+# Build scratch
+*.part
+*.log
