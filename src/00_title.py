@@ -14,7 +14,7 @@
 # | # | Experiment | Technique | Dataset |
 # |---|------------|-----------|---------|
 # | 1 | Graph traversal | Depth-First Search, Breadth-First Search | Hand-built graph |
-# | 2 | 8-Puzzle solver | A\* search, admissible heuristics | Generated states |
+# | 2 | 8-Puzzle solver | A* search, admissible heuristics | Generated states |
 # | 3 | Travelling Salesman Problem | Genetic algorithm (evolutionary search) | 25 Indian cities |
 # | 4 | Family-tree rule induction | First Order Inductive Learner (FOIL) | Hand-built family tree |
 # | 5 | Expert system | Forward chaining + certainty factors | Hand-built rule base |

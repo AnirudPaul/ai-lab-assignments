@@ -1,8 +1,8 @@
 # %% [markdown]
 # ---
-# # Experiment 2 — 8-Puzzle Solver using A\* Search
+# # Experiment 2 — 8-Puzzle Solver using A* Search
 #
-# **Aim.** Solve the 8-puzzle with A\* search, and measure how much the choice of
+# **Aim.** Solve the 8-puzzle with A* search, and measure how much the choice of
 # heuristic changes the amount of work done to reach the *same* optimal answer.
 #
 # ## Theory
@@ -10,14 +10,14 @@
 # The 8-puzzle is a 3×3 board holding tiles 1–8 and one blank. A move slides a tile into
 # the blank. The task is to reach the goal configuration in the fewest moves.
 #
-# A\* expands the frontier node minimising
+# A* expands the frontier node minimising
 #
 # $$f(n) = g(n) + h(n)$$
 #
 # where $g(n)$ is the cost already paid to reach $n$ and $h(n)$ estimates the cost
 # remaining. Two properties matter:
 #
-# * **Admissible** — $h(n) \le h^*(n)$, never overestimates. Guarantees A\* returns an
+# * **Admissible** — $h(n) \le h^*(n)$, never overestimates. Guarantees A* returns an
 #   *optimal* solution.
 # * **Consistent** — $h(n) \le c(n,n') + h(n')$. Guarantees each state is expanded at most
 #   once, so no re-expansion bookkeeping is needed.
@@ -26,13 +26,13 @@
 #
 # | | Definition | Admissible? | Dominance |
 # |---|---|---|---|
-# | $h_0$ — Uniform Cost | $0$ | Yes (trivially) | weakest; A\* degenerates to Dijkstra/BFS |
+# | $h_0$ — Uniform Cost | $0$ | Yes (trivially) | weakest; A* degenerates to Dijkstra/BFS |
 # | $h_1$ — Misplaced tiles | count of tiles not in their goal square | Yes: each needs ≥1 move | $h_1 \ge h_0$ |
 # | $h_2$ — Manhattan distance | $\sum_{\text{tiles}} \lvert \Delta r\rvert + \lvert \Delta c\rvert$ | Yes: each move changes one tile's distance by 1 | $h_2 \ge h_1$ |
 # | $h_3$ — Manhattan + linear conflict | $h_2 + 2\times$(pairs reversed in their goal row/column) | Yes | $h_3 \ge h_2$ |
 #
 # **Dominance is the key idea.** If $h_a(n) \ge h_b(n)$ everywhere and both are admissible,
-# A\* with $h_a$ never expands more nodes than with $h_b$. So we should see node counts fall
+# A* with $h_a$ never expands more nodes than with $h_b$. So we should see node counts fall
 # monotonically from $h_0$ to $h_3$, while the solution length stays *identical* — that
 # constancy is the experimental signature of admissibility.
 #
@@ -125,7 +125,7 @@ print(f"\nGoal state scores 0 under every heuristic: "
       f"{[h(GOAL) for h in HEURISTICS.values()]}")
 
 # %% [markdown]
-# ### The A\* search itself
+# ### The A* search itself
 #
 # A binary heap orders the frontier by $f$. `closed` prevents re-expansion; the
 # `g`-dictionary lets a cheaper route to an already-discovered state overwrite the old
@@ -344,14 +344,14 @@ save_fig("q2_scaling", fig)
 # %% [markdown]
 # ## Result and discussion
 #
-# * **Optimality held everywhere.** Across every instance and every heuristic, A\* returned
+# * **Optimality held everywhere.** Across every instance and every heuristic, A* returned
 #   the *same* solution length, and the explicit disagreement check found 0 violations.
 #   This is admissibility doing its job: a heuristic that never overestimates cannot cause
-#   A\* to return a suboptimal path.
+#   A* to return a suboptimal path.
 #
 # * **Dominance predicted the work done.** Node counts fell monotonically as the heuristic
 #   strengthened, $h_0 > h_1 > h_2 > h_3$, exactly as the dominance argument requires.
-#   Uniform-cost search — A\* with no heuristic at all — expanded orders of magnitude more
+#   Uniform-cost search — A* with no heuristic at all — expanded orders of magnitude more
 #   nodes than Manhattan distance to reach an identical answer.
 #
 # * **Informedness matters more as problems get harder.** On the shallowest scrambles all

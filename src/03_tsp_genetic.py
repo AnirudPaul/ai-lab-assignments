@@ -362,7 +362,7 @@ save_fig("q3_robustness", fig)
 #   trend. A 25-city instance is simply too easy for the parameter to bite; the effect
 #   would need a larger instance, or more seeds per rate, to be demonstrated properly.
 #
-# * **No optimality guarantee.** Unlike A\* in Experiment 2, nothing here certifies the
+# * **No optimality guarantee.** Unlike A* in Experiment 2, nothing here certifies the
 #   answer. The GA returns the best tour *it happened to find*. For 25 cities the true
 #   optimum is unknown to us, so every claim above is stated relative to measured
 #   baselines rather than to an optimum.
