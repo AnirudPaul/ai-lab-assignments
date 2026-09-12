@@ -96,22 +96,46 @@ def assemble(out_path: Path) -> nbformat.NotebookNode:
     return nb
 
 
-def execute(path: Path, timeout: int = 3600) -> None:
+def execute(path: Path, timeout: int = 3600, start: int = 0) -> None:
+    """Execute the notebook cell by cell, reporting progress and saving as it goes.
+
+    `client.execute()` runs the whole notebook as one opaque call: if the kernel dies
+    part-way (this machine shares its GPU with other processes, and a CUDA crash takes
+    the kernel with it) the run reports nothing about where it stopped and every
+    completed cell is lost. Driving the loop here means progress is printed per cell and
+    the partially executed notebook is written to disk, so a crash is diagnosable and the
+    work up to it is not thrown away.
+    """
     from nbclient import NotebookClient
 
     nb = nbformat.read(path, as_version=4)
-    client = NotebookClient(
-        nb,
-        timeout=timeout,
-        kernel_name="python3",
-        resources={"metadata": {"path": str(ROOT)}},
-        allow_errors=False,
-    )
-    t = time.time()
-    print(f"executing {len(nb.cells)} cells (cwd={ROOT}) ...", flush=True)
-    client.execute()
+    client = NotebookClient(nb, timeout=timeout, kernel_name="python3",
+                            resources={"metadata": {"path": str(ROOT)}},
+                            allow_errors=False)
+    total = len(nb.cells)
+    code_total = sum(1 for c in nb.cells if c.cell_type == "code")
+    print(f"executing {total} cells ({code_total} code) cwd={ROOT}", flush=True)
+
+    t0 = time.time()
+    done = 0
+    with client.setup_kernel():
+        for idx, cell in enumerate(nb.cells):
+            if cell.cell_type != "code":
+                continue
+            done += 1
+            head = cell.source.strip().splitlines()[0][:58] if cell.source.strip() else ""
+            print(f"  [{done:3d}/{code_total}] cell {idx:3d}  {head}", flush=True)
+            try:
+                client.execute_cell(cell, idx)
+            except Exception as exc:
+                nbformat.write(nb, path)
+                print(f"\nFAILED at cell {idx} after {time.time()-t0:.0f}s: "
+                      f"{type(exc).__name__}: {str(exc)[:900]}", flush=True)
+                raise
+            if done % 10 == 0:
+                nbformat.write(nb, path)      # periodic checkpoint
     nbformat.write(nb, path)
-    print(f"executed in {time.time()-t:.1f}s")
+    print(f"executed {code_total} code cells in {time.time()-t0:.1f}s", flush=True)
 
 
 def _run(cmd: list[str]) -> tuple[int, str]:
@@ -131,23 +155,78 @@ def export_html(nb_path: Path, out: Path) -> bool:
     return code == 0
 
 
-def export_pdf(nb_path: Path, out: Path) -> bool:
-    """Try webpdf (chromium) first, then LaTeX. Returns True on success."""
-    attempts = [
-        ("webpdf", [sys.executable, "-m", "nbconvert", "--to", "webpdf",
-                    "--allow-chromium-download", "--output", out.stem,
-                    "--output-dir", str(out.parent), str(nb_path)]),
-        ("latex", [sys.executable, "-m", "nbconvert", "--to", "pdf",
-                   "--output", out.stem, "--output-dir", str(out.parent), str(nb_path)]),
-    ]
-    for name, cmd in attempts:
-        print(f"pdf export via {name} ...", flush=True)
-        code, log = _run(cmd)
-        if code == 0 and out.exists():
-            print(f"pdf ok via {name}: {out.stat().st_size/1e6:.1f} MB")
-            return True
-        print(f"  {name} failed (exit={code})")
-        print("  " + log.replace("\n", "\n  ")[-1200:])
+# Injected before </head> of the exported HTML so the PDF paginates sensibly.
+PRINT_CSS = """
+<style>
+@page { size: A4; margin: 14mm 12mm; }
+body { font-size: 10.5pt; }
+/* Long console output and source lines must wrap instead of running off the page. */
+pre, code, .jp-OutputArea-output pre, .highlight pre {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+.jp-OutputArea-output { overflow-x: visible !important; }
+/* Do not split a figure, a table or a code cell across two pages. */
+.jp-RenderedImage, .jp-OutputArea-child, table, .jp-Cell-inputWrapper {
+  page-break-inside: avoid; break-inside: avoid;
+}
+img { max-width: 100% !important; height: auto !important; }
+/* Start each experiment on a fresh page. Every experiment's markdown opens with a
+   `---` rule, so breaking after each <hr> paginates exactly on those boundaries.
+   Breaking before <h1> instead produced a blank leading page, because the template
+   emits a heading of its own above the title page. */
+hr { break-after: page; page-break-after: always;
+     border: none; height: 0; margin: 0; visibility: hidden; }
+.jp-InputPrompt, .jp-OutputPrompt { min-width: 0 !important; }
+</style>
+"""
+
+
+def export_pdf(nb_path: Path, out: Path, html_path: Path | None = None) -> bool:
+    """Render the notebook to PDF by printing its HTML with headless Chromium.
+
+    nbconvert's own `--to webpdf` raises NotImplementedError on Windows: it drives
+    Playwright through asyncio's subprocess API, which the event loop policy in use
+    here does not implement. Playwright's *sync* API sidesteps that entirely, and
+    printing the HTML ourselves also lets us inject print CSS for pagination.
+    """
+    html_path = html_path or (out.parent / f"{out.stem}_print.html")
+    code, log = _run([sys.executable, "-m", "nbconvert", "--to", "html",
+                      "--embed-images", "--template", "lab",
+                      "--output", html_path.stem, "--output-dir", str(html_path.parent),
+                      str(nb_path)])
+    if code != 0 or not html_path.exists():
+        print(f"  HTML step failed (exit={code})\n  {log[-1000:]}")
+        return False
+
+    html = html_path.read_text(encoding="utf-8")
+    if "</head>" in html:
+        html = html.replace("</head>", PRINT_CSS + "</head>", 1)
+    else:
+        html = PRINT_CSS + html
+    html_path.write_text(html, encoding="utf-8")
+
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        print("  playwright not installed: pip install playwright && "
+              "python -m playwright install chromium")
+        return False
+
+    print("  printing with headless chromium ...", flush=True)
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(html_path.resolve().as_uri(), wait_until="networkidle", timeout=180_000)
+        page.pdf(path=str(out), format="A4", print_background=True,
+                 margin={"top": "14mm", "bottom": "14mm",
+                         "left": "12mm", "right": "12mm"})
+        browser.close()
+
+    if out.exists():
+        print(f"pdf ok: {out.name}, {out.stat().st_size/1e6:.1f} MB")
+        return True
     return False
 
 

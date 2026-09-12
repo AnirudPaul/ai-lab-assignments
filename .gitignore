@@ -11,3 +11,6 @@ venv/
 # Build scratch
 *.part
 *.log
+
+# PDF export intermediate
+AI_Lab_Assignment_print.html

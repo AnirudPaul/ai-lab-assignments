@@ -132,6 +132,21 @@ def timed(fn, *args, **kwargs):
     return out, time.perf_counter() - t0
 
 
+def free_gpu() -> None:
+    """Release cached GPU memory between experiments.
+
+    PyTorch keeps a caching allocator, so memory freed by Python is not returned to the
+    driver. This GPU is shared with other processes, so handing it back between the
+    heavier experiments avoids an out-of-memory failure late in the notebook.
+    """
+    import gc
+
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        torch.cuda.synchronize()
+
+
 def load_dataset(name: str) -> dict:
     """Load a prepared dataset from data/prepared/<name>.npz.
 

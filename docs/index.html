@@ -1,0 +1,178 @@
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#16202e;--muted:#5c6b80;--line:#dfe4ea;
+      --accent:#2A4B9B;--accent2:#E4572E}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+     background:var(--bg);color:var(--ink)}
+a{color:var(--accent)}
+.hero{background:linear-gradient(135deg,#22335c 0%,#2A4B9B 60%,#3d6fd0 100%);
+      color:#fff;padding:54px 24px 46px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+.hero h1{margin:0 0 6px;font-size:2.1rem;letter-spacing:-.5px}
+.hero p{margin:6px 0 0;opacity:.92}
+.badges{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap}
+.badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28);
+       padding:5px 12px;border-radius:999px;font-size:.82rem}
+.actions{margin-top:22px;display:flex;gap:12px;flex-wrap:wrap}
+.btn{background:#fff;color:var(--accent);padding:10px 18px;border-radius:8px;
+     text-decoration:none;font-weight:600;font-size:.92rem}
+.btn.alt{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.4)}
+section{padding:34px 0}
+h2{font-size:1.35rem;margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+      padding:22px;margin-bottom:22px}
+.card h3{margin:0 0 4px;font-size:1.12rem}
+.card .sub{color:var(--accent2);font-weight:600;font-size:.83rem;
+           text-transform:uppercase;letter-spacing:.6px}
+.card p{color:var(--muted);margin:10px 0 16px}
+.figs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.figs a{display:block;border:1px solid var(--line);border-radius:8px;overflow:hidden;
+        background:#fff}
+.figs img{width:100%;display:block}
+.figs span{display:block;padding:7px 10px;font-size:.76rem;color:var(--muted);
+           border-top:1px solid var(--line);word-break:break-word}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);
+      border-radius:10px;overflow:hidden}
+th,td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--line);font-size:.9rem}
+th{background:#eef1f6}
+tr:last-child td{border-bottom:none}
+footer{padding:34px 0 50px;color:var(--muted);font-size:.87rem;text-align:center}
+code{background:#eef1f6;padding:2px 6px;border-radius:4px;font-size:.86em}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#11151b;--card:#171d26;--ink:#e6ecf3;--muted:#9aa8ba;--line:#26303d}
+  th{background:#1d242f}
+  .figs a{background:#fff}
+}
+</style>
+<div class="hero"><div class="wrap">
+<h1>Artificial Intelligence — Laboratory Record</h1>
+<p>Ten experiments: classical search, evolutionary algorithms, inductive logic programming, expert systems, and neural networks.</p>
+<div class="badges">
+<span class='badge'>Anirud Paul · 26MCF10001</span>
+<span class='badge'>VIT Bhopal University · SCAI</span>
+<span class='badge'>Python 3.11 · PyTorch · scikit-learn</span>
+</div>
+<div class="actions">
+<a class="btn" href="notebook.html">Read the full notebook</a>
+<a class="btn alt" href="https://github.com/AnirudPaul/ai-lab-assignments">GitHub repository</a>
+<a class="btn alt" href="https://github.com/AnirudPaul/ai-lab-assignments/raw/main/AI_Lab_Assignment.pdf">Download PDF</a>
+</div></div></div>
+<div class="wrap"><section>
+<h2>Experiments</h2>
+<div class="card">
+<div class="sub">Experiment 1 — Graph traversal from scratch</div>
+<h3>Depth-First &amp; Breadth-First Search</h3>
+<p>Recursive and iterative DFS, BFS with a queue, frontier tracing, and a measured comparison of search-tree shape, shortest-path optimality and peak memory.</p>
+<div class="figs">
+<a href="fig/q1_frontier_growth.png" target="_blank"><img src="fig/q1_frontier_growth.png" alt="frontier growth" loading="lazy"><span>frontier growth</span></a>
+<a href="fig/q1_space_comparison.png" target="_blank"><img src="fig/q1_space_comparison.png" alt="space comparison" loading="lazy"><span>space comparison</span></a>
+<a href="fig/q1_traversal_trees.png" target="_blank"><img src="fig/q1_traversal_trees.png" alt="traversal trees" loading="lazy"><span>traversal trees</span></a>
+</div>
+</div>
+<div class="card">
+<div class="sub">Experiment 2 — Informed search and admissible heuristics</div>
+<h3>8-Puzzle Solver with A*</h3>
+<p>A* with four heuristics (uniform cost, misplaced tiles, Manhattan, Manhattan + linear conflict), verifying that all return the same optimal path while differing by ~100x in nodes expanded.</p>
+<div class="figs">
+<a href="fig/q2_heuristic_comparison.png" target="_blank"><img src="fig/q2_heuristic_comparison.png" alt="heuristic comparison" loading="lazy"><span>heuristic comparison</span></a>
+<a href="fig/q2_scaling.png" target="_blank"><img src="fig/q2_scaling.png" alt="scaling" loading="lazy"><span>scaling</span></a>
+<a href="fig/q2_solution_path.png" target="_blank"><img src="fig/q2_solution_path.png" alt="solution path" loading="lazy"><span>solution path</span></a>
+</div>
+</div>
+<div class="card">
+<div class="sub">Experiment 3 — Evolutionary search</div>
+<h3>Travelling Salesman by Genetic Algorithm</h3>
+<p>Order crossover, inversion mutation and tournament selection on a 25-city tour of India, benchmarked honestly against nearest-neighbour and 2-opt local search.</p>
+<div class="figs">
+<a href="fig/q3_convergence.png" target="_blank"><img src="fig/q3_convergence.png" alt="convergence" loading="lazy"><span>convergence</span></a>
+<a href="fig/q3_robustness.png" target="_blank"><img src="fig/q3_robustness.png" alt="robustness" loading="lazy"><span>robustness</span></a>
+<a href="fig/q3_tour_evolution.png" target="_blank"><img src="fig/q3_tour_evolution.png" alt="tour evolution" loading="lazy"><span>tour evolution</span></a>
+<a href="fig/q3_tours.png" target="_blank"><img src="fig/q3_tours.png" alt="tours" loading="lazy"><span>tours</span></a>
+</div>
+</div>
+<div class="card">
+<div class="sub">Experiment 4 — First-order rule induction</div>
+<h3>FOIL on a Family Tree</h3>
+<p>A real FOIL implementation - sequential covering driven by information gain - inducing grandfather, grandmother, sibling and uncle from ground facts, plus beam search and post-pruning to fix where greedy search fails.</p>
+<div class="figs">
+<a href="fig/q4_family_tree.png" target="_blank"><img src="fig/q4_family_tree.png" alt="family tree" loading="lazy"><span>family tree</span></a>
+<a href="fig/q4_gain_trace.png" target="_blank"><img src="fig/q4_gain_trace.png" alt="gain trace" loading="lazy"><span>gain trace</span></a>
+<a href="fig/q4_rule_quality.png" target="_blank"><img src="fig/q4_rule_quality.png" alt="rule quality" loading="lazy"><span>rule quality</span></a>
+</div>
+</div>
+<div class="card">
+<div class="sub">Experiment 5 — Forward chaining with certainty factors</div>
+<h3>Expert System</h3>
+<p>A 20-rule diagnostic knowledge base with MYCIN-style certainty factors, negated conditions, and how/why explanation of every conclusion.</p>
+<div class="figs">
+<a href="fig/q5_expert_system.png" target="_blank"><img src="fig/q5_expert_system.png" alt="expert system" loading="lazy"><span>expert system</span></a>
+</div>
+</div>
+<div class="card">
+<div class="sub">Experiment 6 — Handwritten digit recognition</div>
+<h3>MLP on MNIST</h3>
+<p>A PyTorch multilayer perceptron reaching 98.2%, with a controlled test showing a parameter-identical network without activations collapses to 91%.</p>
+<div class="figs">
+<a href="fig/q6_architecture_comparison.png" target="_blank"><img src="fig/q6_architecture_comparison.png" alt="architecture comparison" loading="lazy"><span>architecture comparison</span></a>
+<a href="fig/q6_class_distribution.png" target="_blank"><img src="fig/q6_class_distribution.png" alt="class distribution" loading="lazy"><span>class distribution</span></a>
+<a href="fig/q6_confusion_matrix.png" target="_blank"><img src="fig/q6_confusion_matrix.png" alt="confusion matrix" loading="lazy"><span>confusion matrix</span></a>
+<a href="fig/q6_layer1_weights.png" target="_blank"><img src="fig/q6_layer1_weights.png" alt="layer1 weights" loading="lazy"><span>layer1 weights</span></a>
+<a href="fig/q6_misclassified.png" target="_blank"><img src="fig/q6_misclassified.png" alt="misclassified" loading="lazy"><span>misclassified</span></a>
+<a href="fig/q6_samples.png" target="_blank"><img src="fig/q6_samples.png" alt="samples" loading="lazy"><span>samples</span></a>
+<a href="fig/q6_training_curves.png" target="_blank"><img src="fig/q6_training_curves.png" alt="training curves" loading="lazy"><span>training curves</span></a>
+</div>
+</div>
+<div class="card">
+<div class="sub">Experiment 7 — Eigenfaces + support vector machine</div>
+<h3>SVM Face Recognition on LFW</h3>
+<p>PCA eigenfaces feeding an RBF SVM, tuned by grid search, evaluated with balanced accuracy against the majority-class baseline rather than chance.</p>
+<div class="figs">
+<a href="fig/q7_ablation.png" target="_blank"><img src="fig/q7_ablation.png" alt="ablation" loading="lazy"><span>ablation</span></a>
+<a href="fig/q7_components.png" target="_blank"><img src="fig/q7_components.png" alt="components" loading="lazy"><span>components</span></a>
+<a href="fig/q7_eigenfaces.png" target="_blank"><img src="fig/q7_eigenfaces.png" alt="eigenfaces" loading="lazy"><span>eigenfaces</span></a>
+<a href="fig/q7_grid_search.png" target="_blank"><img src="fig/q7_grid_search.png" alt="grid search" loading="lazy"><span>grid search</span></a>
+<a href="fig/q7_results.png" target="_blank"><img src="fig/q7_results.png" alt="results" loading="lazy"><span>results</span></a>
+<a href="fig/q7_samples.png" target="_blank"><img src="fig/q7_samples.png" alt="samples" loading="lazy"><span>samples</span></a>
+</div>
+</div>
+<div class="card">
+<div class="sub">Experiment 8 — Unsupervised clustering</div>
+<h3>K-Means on MNIST</h3>
+<p>Lloyd's algorithm with k-means++ written from scratch, and an honest account of which digits clustering recovers and which it does not.</p>
+<div class="figs">
+<a href="fig/q8_centroids.png" target="_blank"><img src="fig/q8_centroids.png" alt="centroids" loading="lazy"><span>centroids</span></a>
+<a href="fig/q8_choosing_k.png" target="_blank"><img src="fig/q8_choosing_k.png" alt="choosing k" loading="lazy"><span>choosing k</span></a>
+<a href="fig/q8_confusion.png" target="_blank"><img src="fig/q8_confusion.png" alt="confusion" loading="lazy"><span>confusion</span></a>
+<a href="fig/q8_pca_comparison.png" target="_blank"><img src="fig/q8_pca_comparison.png" alt="pca comparison" loading="lazy"><span>pca comparison</span></a>
+<a href="fig/q8_projections.png" target="_blank"><img src="fig/q8_projections.png" alt="projections" loading="lazy"><span>projections</span></a>
+</div>
+</div>
+<div class="card">
+<div class="sub">Experiment 9 — Convolutional image classification</div>
+<h3>CNN on CIFAR-10</h3>
+<p>A BatchNorm CNN with GPU-side augmentation reaching 86.9%, against a fully connected network given 4.7x more parameters that reaches only 54.7%.</p>
+<div class="figs">
+<a href="fig/q9_augmentation.png" target="_blank"><img src="fig/q9_augmentation.png" alt="augmentation" loading="lazy"><span>augmentation</span></a>
+<a href="fig/q9_cnn_vs_mlp.png" target="_blank"><img src="fig/q9_cnn_vs_mlp.png" alt="cnn vs mlp" loading="lazy"><span>cnn vs mlp</span></a>
+<a href="fig/q9_confusion_matrix.png" target="_blank"><img src="fig/q9_confusion_matrix.png" alt="confusion matrix" loading="lazy"><span>confusion matrix</span></a>
+<a href="fig/q9_filters_featuremaps.png" target="_blank"><img src="fig/q9_filters_featuremaps.png" alt="filters featuremaps" loading="lazy"><span>filters featuremaps</span></a>
+<a href="fig/q9_predictions.png" target="_blank"><img src="fig/q9_predictions.png" alt="predictions" loading="lazy"><span>predictions</span></a>
+<a href="fig/q9_samples.png" target="_blank"><img src="fig/q9_samples.png" alt="samples" loading="lazy"><span>samples</span></a>
+<a href="fig/q9_training_curves.png" target="_blank"><img src="fig/q9_training_curves.png" alt="training curves" loading="lazy"><span>training curves</span></a>
+</div>
+</div>
+<div class="card">
+<div class="sub">Experiment 10 — Multilayer bidirectional LSTM</div>
+<h3>Sentiment Analysis with RNNs</h3>
+<p>A 2-layer BiLSTM on raw IMDB reviews, compared against a TF-IDF bigram baseline that turns out to be highly competitive.</p>
+<div class="figs">
+<a href="fig/q10_comparison.png" target="_blank"><img src="fig/q10_comparison.png" alt="comparison" loading="lazy"><span>comparison</span></a>
+<a href="fig/q10_confidence.png" target="_blank"><img src="fig/q10_confidence.png" alt="confidence" loading="lazy"><span>confidence</span></a>
+<a href="fig/q10_data_overview.png" target="_blank"><img src="fig/q10_data_overview.png" alt="data overview" loading="lazy"><span>data overview</span></a>
+<a href="fig/q10_results.png" target="_blank"><img src="fig/q10_results.png" alt="results" loading="lazy"><span>results</span></a>
+</div>
+</div>
+</section><section><h2>Reproducing this</h2>
+<table><tr><th>Step</th><th>Command</th></tr><tr><td>Install dependencies</td><td><code>pip install -r requirements.txt</code></td></tr><tr><td>Download datasets (~500 MB)</td><td><code>python tools/fetch_data.py</code></td></tr><tr><td>Build, execute and export</td><td><code>python tools/nbbuild.py all</code></td></tr></table>
+</section>
+<footer>Anirud Paul (26MCF10001) · School of Computing Science Engineering and Artificial Intelligence · VIT Bhopal University</footer></div>

@@ -61,6 +61,8 @@ import torch.nn.functional as F
 from torch.nn.utils.rnn import pack_padded_sequence
 from torch.utils.data import DataLoader, TensorDataset
 
+free_gpu()   # release anything Experiment 9 left cached
+
 imdb = load_dataset("imdb")
 texts_train_all = imdb["X_train"]
 labels_train_all = imdb["y_train"]
@@ -410,6 +412,7 @@ for name, kwargs in RNN_VARIANTS.items():
                      "test acc": round(a, 4),
                      "test AUC": round(roc_auc_score(labels_test, pr), 4)})
     var_hist[name] = h
+    free_gpu()
     print(f"  {name:24s} test acc = {a:.4f}")
 
 var_df = pd.DataFrame(var_rows)
@@ -477,40 +480,74 @@ axes[2].legend(fontsize=8)
 save_fig("q10_comparison", fig)
 
 # %% [markdown]
+# %% [markdown]
 # ## Result and discussion
 #
-# * **The bidirectional LSTM learned sentiment successfully**, reaching the accuracy and AUC
-#   reported above on a perfectly balanced dataset where chance is 0.5. The score
-#   distributions are strongly bimodal and separated at the decision threshold.
+# ### The architecture comparison is the real result
 #
-# * **Confidence is meaningful.** Accuracy rises monotonically with the model's confidence,
-#   so the sigmoid output carries usable information about reliability rather than being an
-#   arbitrary number above or below 0.5. The confident mistakes shown above are mostly
-#   reviews containing sarcasm, or a positive review of a film the writer says they
-#   *expected* to dislike — genuinely hard cases.
+# | architecture | params | best val acc | test acc | test AUC |
+# |---|---|---|---|---|
+# | Simple RNN, 1 layer | 2.59 M | 0.7316 | 0.7330 | 0.7902 |
+# | LSTM, 1 layer, unidirectional | 2.69 M | 0.8470 | 0.8364 | 0.9101 |
+# | LSTM, 1 layer, bidirectional | 2.82 M | 0.8748 | 0.8572 | 0.9281 |
+# | **LSTM, 2 layers, bidirectional** | 3.22 M | 0.8810 | **0.8640** | 0.9416 |
+# | GRU, 2 layers, bidirectional | 3.05 M | 0.9034 | **0.8880** | 0.9549 |
+# | **TF-IDF (1–2 gram) + logistic regression** | — | — | **0.9032** | **0.9657** |
 #
-# * **Gating matters, and the comparison shows it.** The plain `nn.RNN` variant performs
-#   markedly worse than any LSTM under identical training. This is the vanishing-gradient
-#   problem made concrete: over a 300-token review, a simple recurrence cannot carry
-#   information from the start of the sequence to the end.
+# * **The headline model works.** The 2-layer bidirectional LSTM reached **0.8640** test
+#   accuracy and **0.9416** AUC on a perfectly balanced dataset where chance is 0.5.
 #
-# * **Bidirectionality helped; stacking a second layer helped less.** Reading the sequence in
-#   both directions gave a clear gain, while the second layer added parameters for a much
-#   smaller return — the same diminishing-returns pattern seen with MLP depth in
+# * **Gating is essential, and the measurement is unambiguous.** The plain `nn.RNN` scored
+#   **0.7330** against **0.8364** for a single-layer LSTM of near-identical size — a
+#   **10.3-point** gap, and an AUC gap of 0.12. Over a 300-token review a simple recurrence
+#   cannot carry information from the opening sentence to the classifier; this is the
+#   vanishing-gradient problem turned into a number.
+#
+# * **Each architectural addition helped, with shrinking returns.** Unidirectional → bidirectional
+#   bought **+2.1 points** (0.8364 → 0.8572); stacking a second layer bought a further
+#   **+0.7** (→ 0.8640). Both improvements are real but each costs more parameters than the
+#   last one returned — the same diminishing-returns pattern seen with MLP depth in
 #   Experiment 6.
 #
-# * **The honest comparison — and it is not flattering to the LSTM.** A TF-IDF bigram model
-#   with logistic regression, trained on a CPU in a fraction of the time, is highly
-#   competitive with the recurrent network and by the numbers above is the stronger model.
-#   This is a well-known result on IMDB and it is worth stating plainly rather than quietly
-#   omitting the baseline: sentiment here is largely carried by the *presence* of particular
-#   words and bigrams ("waste of time", "highly recommend"), which a bag-of-n-grams captures
-#   directly and cheaply. The sequential structure an LSTM models is real but, on this task,
-#   not where most of the signal lives.
+# * **The cell type mattered more than the depth.** Swapping LSTM for GRU at the *same*
+#   depth and direction gave **0.8880**, the best recurrent model tried and a larger gain
+#   (+2.4 points) than bidirectionality and stacking combined. The GRU's smaller gate count
+#   makes it easier to fit on 20,000 reviews, and it did so with *fewer* parameters than the
+#   LSTM it replaced.
 #
-# * **What would change the verdict.** The LSTM trains from scratch on 20k reviews with
-#   randomly initialised embeddings. Pre-trained embeddings (GloVe, word2vec) or a
-#   pre-trained transformer would bring in knowledge from far larger corpora, and that is
-#   where modern NLP gets its advantage — not from the recurrence itself. The lesson is to
-#   always run the cheap classical baseline before concluding that a deep model was
-#   necessary.
+# * **Best-checkpoint selection was necessary, not cosmetic.** Validation accuracy peaks
+#   before the final epoch on every variant — the headline model's best epoch is not its
+#   last. An earlier version of this experiment reported the final epoch after 5 epochs and
+#   measured **0.7894**; training for 8 epochs and restoring the best validation checkpoint
+#   gives **0.8640** for the identical architecture. That 7.5-point difference is purely
+#   measurement methodology, and it is worth being explicit that the lower number was an
+#   artefact of how the model was selected rather than a property of the model.
+#
+# * **The honest comparison, and it is not flattering.** A TF-IDF bigram model with logistic
+#   regression reached **0.9032 accuracy and 0.9657 AUC — beating every recurrent model,
+#   including the GRU** — after **34.8 s of CPU training** against the BiLSTM's **955.1 s on
+#   a GPU**. That is roughly **27× less time on far cheaper hardware for a better result**.
+#   This is a well-documented outcome on IMDB and it deserves stating rather than quietly
+#   omitting the baseline: sentiment here is carried largely by the *presence* of particular
+#   words and bigrams ("waste of time", "highly recommend"), which a bag-of-n-grams captures
+#   directly. The sequential structure an LSTM models is real, but on this task it is not
+#   where most of the signal lives.
+#
+# * **Errors are not symmetric.** The headline model recalls negatives at 0.9153 but
+#   positives at only 0.8128, so it leans towards predicting "negative". Its AUC (0.9416) is
+#   healthier than its accuracy (0.8640), which says the *ranking* is good and it is the
+#   fixed 0.5 threshold that is poorly placed — a threshold tuned on the validation split
+#   would recover a point or two without any retraining.
+#
+# * **Confidence is meaningful.** Accuracy rises monotonically with the model's confidence,
+#   so the sigmoid output is usable as a reliability estimate rather than an arbitrary
+#   number either side of 0.5. The confident mistakes are dominated by sarcasm and by
+#   reviews praising a film the writer says they expected to dislike — cases where local
+#   word evidence genuinely points the wrong way.
+#
+# * **What would change the verdict.** Every embedding here is learned from scratch on
+#   20,000 reviews, and 80 % of the model's parameters sit in that randomly initialised
+#   embedding table. Pre-trained embeddings (GloVe, word2vec) or a pre-trained transformer
+#   import knowledge from corpora orders of magnitude larger, and that — not the recurrence
+#   itself — is where modern NLP gets its advantage. The practical lesson stands on its own:
+#   **run the cheap classical baseline first**, because on this task it won.

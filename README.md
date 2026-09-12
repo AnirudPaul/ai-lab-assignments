@@ -23,7 +23,7 @@ Intelligence, VIT Bhopal University · Fall Semester 2026-27
 | 7 | LFW face recognition | PCA eigenfaces + RBF SVM | **84.78 %** accuracy / 81.48 % balanced, vs 41.15 % majority baseline |
 | 8 | MNIST clustering | K-Means from scratch (k-means++) | Purity 0.587, ARI 0.365 — but two digits went unclaimed and two were split |
 | 9 | CIFAR-10 classification | Convolutional neural network | **86.87 %**, vs 54.69 % for an MLP given 4.7× more parameters |
-| 10 | IMDB sentiment analysis | 2-layer bidirectional LSTM | Compared head-to-head against a TF-IDF bigram baseline |
+| 10 | IMDB sentiment analysis | 2-layer bidirectional LSTM | **86.40 %** (AUC 0.9416) — but a TF-IDF bigram baseline beat every RNN at 90.32 %, in 35 s of CPU vs 955 s of GPU |
 
 Every experiment is written up with **Aim → Theory → Implementation → Results →
 Discussion**, and every claim in a discussion section is supported by output printed in

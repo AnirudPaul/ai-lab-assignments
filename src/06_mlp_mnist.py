@@ -350,6 +350,7 @@ for name, build in VARIANTS.items():
         "gap": round(h["train_acc"].iloc[-1] - h["val_acc"].iloc[-1], 4),
     })
     arch_hist[name] = h
+    free_gpu()
     print(f"  {name:28s} test acc = {acc:.4f}")
 
 arch_df = pd.DataFrame(arch_rows)
