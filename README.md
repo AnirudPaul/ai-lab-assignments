@@ -1,4 +1,5 @@
-# Artificial Intelligence — Laboratory Record
+# CSD5004 — Artificial Intelligence and Machine Learning
+## Laboratory Record
 
 Ten AI laboratory experiments, implemented in Python and collected into a single executed
 Jupyter notebook with full theory, results and discussion for each.
@@ -36,6 +37,7 @@ to identify k=10 — it is reported as it happened rather than smoothed over.
 ```
 ├── AI_Lab_Assignment.ipynb    the submitted notebook (executed, with all outputs)
 ├── AI_Lab_Assignment.pdf      the same record as a PDF
+├── AI_Lab_Assignment.docx     the same record as a Word file (page borders + header)
 ├── src/                       cell-marked sources, one file per experiment
 │   ├── 00_title.py            title page, index, shared setup
 │   ├── 01_dfs_bfs.py
@@ -45,6 +47,9 @@ to identify k=10 — it is reported as it happened rather than smoothed over.
 │   ├── fetch_data.py          downloads and normalises all four datasets
 │   ├── nbbuild.py             src/*.py -> notebook -> execute -> HTML + PDF
 │   ├── build_site.py          generates the GitHub Pages site
+│   ├── build_docx.py          notebook -> Word, with page borders and course header
+│   ├── refresh_markdown.py    updates prose without discarding executed output
+│   ├── verify_claims.py       pulls headline numbers out of the executed notebook
 │   └── smoke.py               fast runtime check for a single experiment
 ├── assets/
 │   ├── vit_logo.png

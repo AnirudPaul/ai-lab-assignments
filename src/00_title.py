@@ -2,8 +2,9 @@
 # <div style="text-align:center; font-family:'Times New Roman',Times,serif; page-break-after:always;">
 # <img src="{{LOGO_B64}}" alt="VIT Bhopal University" style="width:230px; margin:18px auto 26px auto; display:block;">
 # <div style="border-top:2px solid #111; border-bottom:2px solid #111; padding:10px 0; margin:0 40px 22px 40px;"><span style="font-size:30px; font-weight:bold; letter-spacing:2px;">LABORATORY RECORD</span></div>
-# <div style="font-size:19px; font-weight:bold; margin-bottom:26px;">______________&nbsp;&nbsp;&nbsp;Artificial Intelligence</div>
-# <div style="font-size:16px; line-height:2.0;"><b>Student Name:</b> Anirud Paul<br><b>Student Regn. No.:</b> 26MCF10001<br><b>Year:</b> 2026-27<br><b>Semester:</b> Fall Semester 26-27<br><b>ClassNbr:</b> ______________________<br><b>Slot:</b> ______________________<br><b>Class Room:</b> ______________________<br><b>Faculty Name:</b> ______________________</div>
+# <div style="font-size:19px; font-weight:bold; margin-bottom:4px;">CSD5004&nbsp;&nbsp;&nbsp;Artificial Intelligence and Machine Learning</div>
+# <div style="font-size:13px; color:#333; margin-bottom:22px;">Programme Core &middot; Regular &middot; L-T-P-J-C: 2-1-1-0-4.0<br><i>(Lecture and Tutorial, practical hours only)</i></div>
+# <div style="font-size:16px; line-height:2.0;"><b>Student Name:</b> Anirud Paul<br><b>Student Regn. No.:</b> 26MCF10001<br><b>Year:</b> 2026-27<br><b>Semester:</b> Fall Semester 26-27<br><b>ClassNbr:</b> BL2026270100790<br><b>Slot:</b> B11+B12+B13<br><b>Class Room:</b> AB02-202<br><b>Faculty Name:</b> URIKHIMBAM BOBY CLINTON</div>
 # <div style="font-size:15px; font-weight:bold; margin-top:26px; line-height:1.7;">School of Computing Science Engineering and Artificial Intelligence (SCAI)<br>VIT Bhopal University</div>
 # </div>
 
