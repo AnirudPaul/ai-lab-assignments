@@ -14,3 +14,6 @@ venv/
 
 # PDF export intermediate
 AI_Lab_Assignment_print.html
+
+# Word lock files (created while a .docx is open)
+~$*
